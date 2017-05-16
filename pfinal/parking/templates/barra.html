@@ -1,0 +1,49 @@
+{% extends "index.html" %}
+
+{%block accesible %}
+  {{ boton|safe }}
+{% endblock %}
+
+
+<!-- Contenido de Aparcamientos Mas comentados o Accesibles-->
+{% block content%}
+  <h2> {{ TituloBarra|safe }} </h2>
+  {%for i in Aparcamientos %}
+  <!-- Article -->
+  <div class="article">
+      <h2><span><a href="#"></a></span></h2>
+
+      <p>{{ i|safe }}</p>
+
+      <p class="btn-more box noprint"><strong><a href="#">Continue</a></strong></p>
+  </div> <!-- /article -->
+
+  <hr class="noscreen" />
+  {% endfor %}
+{% endblock %}
+
+
+
+<!-- Columna donde van las Paginas Personales-->
+{% block barraPersonal %}
+
+<!-- Right column -->
+<div id="col" class="noprint">
+    <div id="col-in">
+
+        <!-- About Me -->
+        <h3><span>Paginas Personales</span></h3>
+
+        <div id="about-me">
+          <ul id="links">
+            {% for c in Paginas %}
+              <li> {{ c|safe }}  </li>
+            {% endfor %}
+          </ul>
+        </div> <!-- /about-me -->
+
+
+    </div> <!-- /col-in -->
+</div> <!-- /col -->
+
+{% endblock %}

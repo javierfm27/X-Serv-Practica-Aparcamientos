@@ -1,146 +1,94 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<!--
-
-	terrafirma1.0 by nodethirtythree design
-	http://www.nodethirtythree.com
-
--->
 {% load static %}
-
-<html>
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
 <head>
-<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
-<title>Park-Find The Place</title>
-<meta name="keywords" content="" />
-<meta name="description" content="" />
-<link rel="stylesheet" type="text/css" href="{% static default.css %}" />
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="content-language" content="cs" />
+    <meta name="robots" content="all,follow" />
+
+    <meta name="author" content="All: ... [Nazev webu - www.url.cz]; e-mail: info@url.cz" />
+    <meta name="copyright" content="Design/Code: Vit Dlouhy [Nuvio - www.nuvio.cz]; e-mail: vit.dlouhy@nuvio.cz" />
+
+    <title>PARK - FIND THE PLACE</title>
+    <meta name="description" content="..." />
+    <meta name="keywords" content="..." />
+
+    <link rel="index" href="./" title="Home" />
+    <link rel="stylesheet" media="screen,projection" type="text/css" href="{% static "css/main.css" %}" />
+    <link rel="stylesheet" media="print" type="text/css" href="{%static "./css/print.css" %}" />
+    <link rel="stylesheet" media="aural" type="text/css" href="{%static "./css/aural.css" %}" />
 </head>
-<body>
 
-<div id="outer">
+<body id="www-url-cz">
 
-	<div id="upbg">
-		 <img id="banner" alt="Not Found Image" src="{% static banner.png %}" width="50px" height="50px"> </img>
-		 {{ formulario }}
-	</div>
+<!-- Main -->
+<div id="main" class="box">
 
+    <!-- Header -->
+    <div id="header">
 
-	<div id="inner">
-
-
-		<div id="menu">
-			<ul>
-				<li class="first"><a href="#">Home</a></li>
-				<li><a href="#">Archives</a></li>
-				<li><a href="#">Links</a></li>
-				<li><a href="#">Resources</a></li>
-				<li><a href="#">Contact</a></li>
-			</ul>
-
-		<div id="date">August 1, 2006</div>
-		</div>
+        <!-- Logotyp -->
+        <img id="logo" src="{% static "images/banner.png" %}">
+        <hr class="noscreen" />
 
 
-		<div id="primarycontent">
+        <!-- Login -->
+        <div id="login" class="f-right" class=".t-right">
+            {{ login|safe }}
+        </div>
 
-			<!-- primary content start -->
 
-			<div class="post">
-				<div class="header">
-					<h3>TerraFirma<sup>1.0</sup> by NodeThirtyThree</h3>
-					<div class="date">August 1, 2006</div>
-				</div>
-				<div class="content">
-					<img src="images/pic1.jpg" class="picA floatleft" alt="" />
-					<p><strong>TerraFirma</strong><sup>1.0</sup> is a free, lightweight, tableless, W3C-compliant website design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree Design</a>. You're free to dissect, manipulate and use it to your heart's content. We only ask that you link back to our site in some way. If you find this design useful, feel free to let us know :)</p>
-					<p>You can find more of our free work at this site or <a href="http://www.nodethirtythree.com/">our site</a>, or some of our commercial work on <a href="http://www.4templates.com/?aff=n33">4Templates.com</a>, a commercial website template site.</p>
-				</div>
-				<div class="footer">
-					<ul>
-						<li class="printerfriendly"><a href="#">Printer Friendly</a></li>
-						<li class="comments"><a href="#">Comments (18)</a></li>
-						<li class="readmore"><a href="#">Read more</a></li>
-					</ul>
-				</div>
-			</div>
 
-			<div class="post">
-				<div class="header">
-					<h3>Vivamus tortor sed aenean</h3>
-					<div class="date">July 31, 2006</div>
-				</div>
-				<div class="content">
-					<p>Volutpat at varius sed sollicitudin et, arcu. Vivamus viverra. Nullam turpis. Vestibulum sed etiam. Lorem ipsum sit amet dolore. Nulla facilisi. Sed tortor. Aenean felis. Quisque eros. Cras lobortis commodo metus. Vestibulum vel purus. In eget odio in sapien adipiscing blandit. Quisque augue tortor, facilisis sit amet, aliquam, suscipit vitae, cursus sed, arcu lorem ipsum dolor sit amet.</p>
-					<p>Fermentum at, varius pretium, elit. Mauris egestas scelerisque nunc. Mauris non ligula quis wisi laoreet malesuada. In commodo. Maecenas lobortis cursus dolor.</p>
-				</div>
-				<div class="footer">
-					<ul>
-						<li class="printerfriendly"><a href="#">Printer Friendly</a></li>
-						<li class="comments"><a href="#">Comments (18)</a></li>
-						<li class="readmore"><a href="#">Read more</a></li>
-					</ul>
-				</div>
-			</div>
+    </div> <!-- /header -->
 
-			<div class="post">
-				<div class="header">
-					<h3>Vivamus tortor sed aenean</h3>
-					<div class="date">July 31, 2006</div>
-				</div>
-				<div class="content">
-					<p>Volutpat at varius sed sollicitudin et, arcu. Vivamus viverra. Nullam turpis. Vestibulum sed etiam. Lorem ipsum sit amet dolore. Nulla facilisi. Sed tortor. Aenean felis. Quisque eros. Cras lobortis commodo metus. Vestibulum vel purus. In eget odio in sapien adipiscing blandit. Quisque augue tortor, facilisis sit amet, aliquam, suscipit vitae, cursus sed, arcu lorem ipsum dolor sit amet.</p>
-					<p>Fermentum at, varius pretium, elit. Mauris egestas scelerisque nunc. Mauris non ligula quis wisi laoreet malesuada. In commodo. Maecenas lobortis cursus dolor.</p>
-				</div>
-				<div class="footer">
-					<ul>
-						<li class="printerfriendly"><a href="#">Printer Friendly</a></li>
-						<li class="comments"><a href="#">Comments (18)</a></li>
-						<li class="readmore"><a href="#">Read more</a></li>
-					</ul>
-				</div>
-			</div>
+     <!-- Main menu (tabs) -->
+     <div id="tabs" class="noprint">
 
-			<!-- primary content end -->
+            <h3 class="noscreen">Navigation</h3>
+            <ul class="box">
+              {% for i in enlaces%}
+                <li> {{ i|safe }} </li>
+              {% endfor %}
+            </ul>
 
-		</div>
+        <hr class="noscreen" />
+     </div> <!-- /tabs -->
 
-		<div id="secondarycontent">
+    <!-- Page (2 columns) -->
+    <div id="page" class="box">
+    <div id="page-in" class="box">
 
-			<!-- secondary content start -->
+        <div id="strip" class="box noprint">
 
-			<h3>About Me</h3>
-			<div class="content">
-				<img src="images/pic2.jpg" class="picB" alt="" />
-				<p><strong>Nullam turpis</strong> vestibulum et sed dolore. Nulla facilisi. Sed tortor. lobortis commodo. <a href="#">More ...</a></p>
-			</div>
+            <!-- Boton Accesibles -->
+            <p id="breadcrumbs">{% block accesible %}{% endblock %}</p>
+            <hr class="noscreen" />
 
-			<h3>Topics</h3>
-			<div class="content">
-				<ul class="linklist">
-					<li class="first"><a href="#">Accumsan congue (32)</a></li>
-					<li><a href="#">Dignissim nec augue (14)</a></li>
-					<li><a href="#">Nunc ante elit nulla (83)</a></li>
-					<li><a href="#">Aliquam suscipit (74)</a></li>
-					<li><a href="#">Cursus sed arcu sed (14)</a></li>
-					<li><a href="#">Eu ante cras at risus (24)</a></li>
-					<li><a href="#">Donec mollis dolore (39)</a></li>
-					<li><a href="#">Aliquam suscipit (74)</a></li>
-				</ul>
-			</div>
+        </div> <!-- /strip -->
 
-			<!-- secondary content end -->
+        <!-- Content -->
+        <div id="content">
 
-		</div>
+            {% block content%}{% endblock %}
 
-		<div id="footer">
+        </div> <!-- /content -->
 
-			&copy; My Website. All rights reserved. Design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree</a>.
+                {% block barraPersonal %}
+                {% endblock %}
 
-		</div>
+    </div> <!-- /page-in -->
+    </div> <!-- /page -->
 
-	</div>
+    <!-- Footer -->
+    <div id="footer">
+      <p>Esta aplicacion utiliza datos del portal de datos abiertos de la ciudad de Madrid 
+        <a href='http://datos.munimadrid.es/portal/site/egob/menuitem.ac61933d6ee3c31cae77ae7784f1a5a0/?vgnextoid=00149033f2201410VgnVCM100000171f5a0aRCRD&format=xml&file=0&filename=202584-0-aparcamientos-residentes&mgmtid=e84276ac109d3410VgnVCM2000000c205a0aRCRD&preview=full'> XML de Datos</a>
+        <a href='http://datos.madrid.es/portal/site/egob/menuitem.c05c1f754a33a9fbe4b2e4b284f1a5a0/?vgnextoid=e84276ac109d3410VgnVCM2000000c205a0aRCRD&vgnextchannel=374512b9ace9f310VgnVCM100000171f5a0aRCRD&vgnextfmt=default'> Descripcion De Contenido XML</a> @2017
+      </p>
+    </div> <!-- /footer -->
 
-</div>
+</div> <!-- /main -->
 
 </body>
 </html>

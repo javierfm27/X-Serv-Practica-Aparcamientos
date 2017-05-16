@@ -15,13 +15,17 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 from parking import views
+from pfinal import settings
+from django.views.static import *
 
 urlpatterns = [
+    url(r'^static/(?P<path>.*)$',serve,{'document_root':settings.STATIC_URL}),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.barra, name="Pagina Principal del sitio"),
     url(r'^login', views.loginUser, name="Pagina que logea con los datos obtenidos del formulario Usuario y Contraseña"),
     url(r'^logout', views.mylogout, name="Pagina para desconectar"),
     url(r'^aparcamientos/(\d+)', views.infoAparcamiento, name="Muestra todos los datos de un Parking"),
+    url(r'^about$', views.informacion, name="Pagina que explica la funcionalidad de la practica"),
     url(r'^aparcamientos$', views.todosAparcamientos, name="Listado de todos los Parkings que maneja la App"),
     url(r'^(.+)',views.seleccionPersonal, name="Paginas de los usuarios registrados"),
 ]
