@@ -26,7 +26,7 @@ def stringLogin(request): #Devuelve el string de Login, Logout.
     return header, logeado
 
 
-def listaAparcamientos(lista, request, flag):
+def listaAparcamientos(lista, request, flag, usuario):
     #Lista de Aparcamientos, flag para distinguir cuando le paso un aparcamiento o una lista de estos
     if flag == 0:
         Content = []
@@ -43,21 +43,19 @@ def listaAparcamientos(lista, request, flag):
                     + "<span class='info'><a class='info' href='/aparcamientos/" + str(p.id) + "'> Mas Info</a></span><br>")
         return Content
     else:
-        Content = ""
-        seleccion = ParkingSeleccion.objects.get(Aparcamiento=lista,Usuario=request.user)
+        seleccion = ParkingSeleccion.objects.get(Aparcamiento=lista,Usuario=usuario)
         if request.user.is_authenticated():
             botonAñadir = "<form class='Personal' action='/" + str(request.user) + "' method='POST'>" \
                     + "<button type='submit' name='Add' value='" + str(lista.id) + "'> Add </button></form>"
-            Content = Content + "<a class='info' href='" + lista.urlP + "'> " + lista.nombre + "</a><br>" \
+            Content = "<a class='info' href='" + lista.urlP + "'> " + lista.nombre + "</a><br>" \
                 + "Direccion: " + lista.direccion + "<br>" \
                 + "<a class='info' href='/aparcamientos/" + str(lista.id) + "'> Mas Info</a><br>" \
                 + "<span class='info'><span class='date'> Fecha Seleccion: " + str(seleccion.Fecha) + "</span></span><br>" + botonAñadir + "<br>"
         else:
-            Content = Content + "<a class='info' href='" + lista.urlP + "'> " + lista.nombre + "</a><br>" \
+            Content = "<a class='info' href='" + lista.urlP + "'> " + lista.nombre + "</a><br>" \
                 + "Direccion: " + lista.direccion + "<br>" \
                 + "<a class='info' href='/aparcamientos/" + str(lista.id) + "'> Mas Info</a><br>" \
                 + "<span class='info'><span class='date'> Fecha Seleccion: " + str(seleccion.Fecha) + "</span></span>"
-            print(Content)
         return Content
 
 def listaPaginasPersonalesBarra():
@@ -128,7 +126,7 @@ def obtainBodyUser(usuarioGET, request):
         ContentBody = []
         for i in listaParkings:
             aparcamiento = i.Aparcamiento
-            ContentBody.append(listaAparcamientos(aparcamiento,request, 1))
+            ContentBody.append(listaAparcamientos(aparcamiento,request, 1, usuarioGET))
         return(Titulo, formulario,ContentBody)
     except PaginaPersonal.DoesNotExist:
         nuevaPagina = PaginaPersonal(Titulo="", usuario=usuarioGET)
@@ -179,7 +177,7 @@ def barra(request):
         #Aparcamientos mas comentados
         parkings = Aparcamientos.objects.all()
         aparcamientos = parkings.order_by('-nComen')
-        Content = listaAparcamientos(aparcamientos, request, 0)
+        Content = listaAparcamientos(aparcamientos, request, 0, request.user)
 
     elif request.method == 'POST':
         opcionAccesibles = request.body.decode('utf-8')
@@ -192,7 +190,7 @@ def barra(request):
             #Aparcamientos Accesibles
             parkings = Aparcamientos.objects.filter(Accesibilidad=True)
             parkings = parkings.order_by('nComen')
-            Content = listaAparcamientos(parkings, request, 0)
+            Content = listaAparcamientos(parkings, request, 0, request.user)
 
         else:
             boton = "<form method='POST'>"\
@@ -201,7 +199,7 @@ def barra(request):
             #Aparcamientos mas comentados
             parkings = Aparcamientos.objects.all()
             aparcamientos = parkings.order_by('nComen')
-            Content = listaAparcamientos(aparcamientos,request, 0)
+            Content = listaAparcamientos(aparcamientos,request, 0, request.user)
 
     #Paginas Personales
     ContentLateral = listaPaginasPersonalesBarra()
@@ -235,7 +233,7 @@ def seleccionPersonal(request, nombreUser):
     #Controlamos el POST y el get
     if request.method == 'GET':
         try:
-            usuario = User.objects.get(username=str(nombreUser))
+            usuario = User.objects.get(username=nombreUser)
             titulo,formulario ,Content = obtainBodyUser(usuario,request)
         except User.DoesNotExist:
             plantilla = get_template('error.html')
@@ -277,14 +275,17 @@ def todosAparcamientos(request):
             for i in parkings:
                 botonAñadir = "<form class='Personal' action='/" + str(request.user) + "' method='POST'>" \
                     + "<button type='submit' name='Add' value='" + str(i.id) + "'> Add </button></form>"
-                ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a>"+ botonAñadir + "</li>"
-            ContentBody = ContentBody + "</li>"
+                if request.user.is_authenticated():
+                    ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a>"+ botonAñadir + "</li>"
+                else:
+                    ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a></li>"
+            ContentBody = ContentBody + "</ul>"
+            ContentBody = ContentBody + formularioFiltrado
         elif request.method == 'POST':
-            ContentBody = "Probando"
             Distrito = request.body.decode('utf-8').split("=")[1]
             Distrito = unquote_plus(Distrito)
             parkings = Aparcamientos.objects.filter(distrito=Distrito)
-            ContentBody = "<ul><h2> Listado De Parkings</h2>"
+            ContentBody = "<ul>"
             for i in parkings:
                 ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a></li>"
             ContentBody = ContentBody + "</li>"
@@ -381,7 +382,18 @@ def loginUser(request):
         login(request, user)
         return redirect(barra)
     else:
-        return HttpResponse("No es valido el Usuario." + enlaceInicio)
+        header, loginBol = stringLogin(request)
+        #Renderizamos porque no es valido el Usuario
+        enlaces = []
+        enlaces.append(enlaceInicio)
+        enlaces.append(enlaceTodos)
+        enlaces.append(enlaceAyuda)
+        plantilla = get_template("error.html")
+        content = "No es valido el Usuario."
+        Context = ({'login': header,
+                    'enlaces': enlaces,
+                    'Contenido': content})
+        return HttpResponse(plantilla.render(Context))
 
 
 def mylogout(request):
