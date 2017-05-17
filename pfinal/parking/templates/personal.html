@@ -1,0 +1,14 @@
+{% extends "index.html" %}
+{% block content %}
+  <h2 class='Personal'> {{ TituloPagina | safe }} </h2>
+  {{ formulario|safe }}
+    {% for aparcamientos in seleccionUsuario %}
+    <div class="Personal">
+
+      <p class="Personal">{{ aparcamientos|safe }}</p>
+
+    </div>
+    <hr class="noscreen" />
+
+  {% endfor %}
+{% endblock %}

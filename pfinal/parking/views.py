@@ -28,34 +28,36 @@ def stringLogin(request): #Devuelve el string de Login, Logout.
 
 def listaAparcamientos(lista, request, flag):
     #Lista de Aparcamientos, flag para distinguir cuando le paso un aparcamiento o una lista de estos
-    Content = []
     if flag == 0:
+        Content = []
         for p in lista:
             if request.user.is_authenticated():
                 botonAñadir = "<form action='/" + str(request.user) + "' method='POST'>" \
                         + "<button type='submit' name='Add' value='" + str(p.id) + "'> Add </button></form>"
-                Content.append("<a href='" + p.urlP + "'> " + p.nombre + "</a><br>" \
+                Content.append("<a class='info' href='" + p.urlP + "'> " + p.nombre + "</a><br>" \
                     + "Direccion: " + p.direccion + "<br>" \
-                    + "<a href='/aparcamientos/" + str(p.id) + "'> Mas Info</a><br>"+ botonAñadir + "<br>")
+                    + "<a class='info' href='/aparcamientos/" + str(p.id) + "'> Mas Info</a><br>"+ botonAñadir + "<br>")
             else:
-                Content.append("<a href='" + p.urlP + "'> " + p.nombre + "</a><br>" \
+                Content.append("<a class='info' href='" + p.urlP + "'> " + p.nombre + "</a><br>" \
                     + "Direccion: " + p.direccion + "<br>" \
-                    + "<a href='/aparcamientos/" + str(p.id) + "'> Mas Info</a><br>")
+                    + "<span class='info'><a class='info' href='/aparcamientos/" + str(p.id) + "'> Mas Info</a></span><br>")
         return Content
     else:
-        seleccion = ParkingSeleccion.objects.get(Aparcamiento=lista)
+        Content = ""
+        seleccion = ParkingSeleccion.objects.get(Aparcamiento=lista,Usuario=request.user)
         if request.user.is_authenticated():
-            botonAñadir = "<form action='/" + str(request.user) + "' method='POST'>" \
+            botonAñadir = "<form class='Personal' action='/" + str(request.user) + "' method='POST'>" \
                     + "<button type='submit' name='Add' value='" + str(lista.id) + "'> Add </button></form>"
-            Content.append("<a href='" + lista.urlP + "'> " + lista.nombre + "</a><br>" \
+            Content = Content + "<a class='info' href='" + lista.urlP + "'> " + lista.nombre + "</a><br>" \
                 + "Direccion: " + lista.direccion + "<br>" \
-                + "<a href='/aparcamientos/" + str(lista.id) + "'> Mas Info</a><br>" \
-                + "Fecha Seleccion: " + str(seleccion.Fecha) + "<br>" + botonAñadir + "<br>")
+                + "<a class='info' href='/aparcamientos/" + str(lista.id) + "'> Mas Info</a><br>" \
+                + "<span class='info'><span class='date'> Fecha Seleccion: " + str(seleccion.Fecha) + "</span></span><br>" + botonAñadir + "<br>"
         else:
-            Content.append("<a href='" + lista.urlP + "'> " + lista.nombre + "</a><br>" \
+            Content = Content + "<a class='info' href='" + lista.urlP + "'> " + lista.nombre + "</a><br>" \
                 + "Direccion: " + lista.direccion + "<br>" \
-                + "<a href='/aparcamientos/" + str(lista.id) + "'> Mas Info</a><br>" \
-                + "Fecha Seleccion: " + str(seleccion.Fecha))
+                + "<a class='info' href='/aparcamientos/" + str(lista.id) + "'> Mas Info</a><br>" \
+                + "<span class='info'><span class='date'> Fecha Seleccion: " + str(seleccion.Fecha) + "</span></span>"
+            print(Content)
         return Content
 
 def listaPaginasPersonalesBarra():
@@ -115,24 +117,23 @@ def obtainBodyUser(usuarioGET, request):
         else:
             Titulo = coleccion.Titulo
         if str(request.user) == str(usuarioGET):
-            headerBody = "<h2>" + Titulo + "</h2><br>" \
-                + "<form action='/" + str(request.user) + "' method='POST'>" \
-                + "Introduce un titulo para la pagina: <input type='text' name='Titulo'>" \
+            formulario =   "<form id='formularioTitulo' action='/" + str(request.user) + "' method='POST'>" \
+                + "Introduce un nombre para tu Coleccion<br><input type='text' name='Titulo'>" \
                 + "<input type='submit' value='Enviar'></form>"
         else:
-            headerBody = "<h2>" + Titulo + "</h2><br>"
+            formulario = ""
 
         #Obtenemos la lista de Aparcamientos seleccionados
         listaParkings = ParkingSeleccion.objects.filter(FichaPersonal=coleccion)
-        ContentBody = ""
+        ContentBody = []
         for i in listaParkings:
             aparcamiento = i.Aparcamiento
-            ContentBody = ContentBody + listaAparcamientos(aparcamiento, "", request, 1)
-        return(headerBody, ContentBody)
+            ContentBody.append(listaAparcamientos(aparcamiento,request, 1))
+        return(Titulo, formulario,ContentBody)
     except PaginaPersonal.DoesNotExist:
         nuevaPagina = PaginaPersonal(Titulo="", usuario=usuarioGET)
         nuevaPagina.save()
-        return (nuevaPagina.Titulo, "No hay ningun Parking en esta coleccion. De momento")
+        return (nuevaPagina.Titulo,"" , "No hay ningun Parking en esta coleccion. De momento")
 
 def obtainInfoParking(aparcamiento):
     try:
@@ -141,8 +142,8 @@ def obtainInfoParking(aparcamiento):
     except ContactosParking.DoesNotExist:
         htmlContacto = "<dt>Contacto</dt><dd> No hay Contacto</dd>"
     #Body HTML
-    bodyHtml = "<h3>Info Detallada</h3>" \
-            + "<dl><dt>Nombre de Parking</dt>" \
+    bodyHtml = "<h3 class='info'>Info Detallada</h3>" \
+            + "<dl class='info'><dt>Nombre de Parking</dt>" \
                 + "<dd>" + aparcamiento.nombre + "</dd>" \
                 + "<dt>Direccion</dt>" \
                 + "<dd>" + aparcamiento.direccion + "</dd>" \
@@ -230,15 +231,16 @@ def seleccionPersonal(request, nombreUser):
     enlaces.append(enlaceTodos)
     enlaces.append(enlaceAyuda)
 
-    
+
     #Controlamos el POST y el get
     if request.method == 'GET':
         try:
             usuario = User.objects.get(username=str(nombreUser))
-            titulo, Content = obtainBodyUser(usuario,request)
+            titulo,formulario ,Content = obtainBodyUser(usuario,request)
         except User.DoesNotExist:
             plantilla = get_template('error.html')
             contenidoNotFound = "NO EXISTE EL USUARIO " + str(nombreUser)
+            #Renderizamos para el error
             Content = ({'login': header,
                         'enlaces': enlaces,
                         'Contenido': contenidoNotFound})
@@ -246,7 +248,14 @@ def seleccionPersonal(request, nombreUser):
     elif request.method == 'POST':
         postUsuario(request)
         return redirect(seleccionPersonal,str(request.user))
-    return HttpResponse(header + titulo + Content)
+    #Renderizamos para el html personal, ya que este es distinto que el de la Pagina Principal
+    plantilla = get_template('personal.html')
+    Context = ({'login': header,
+                'enlaces': enlaces,
+                'TituloPagina': titulo,
+                'seleccionUsuario': Content,
+                'formulario': formulario})
+    return HttpResponse(plantilla.render(Context))
 
 @csrf_exempt
 def todosAparcamientos(request):
@@ -256,13 +265,19 @@ def todosAparcamientos(request):
     formularioFiltrado = "<form method='POST'>"\
         + "Buscar por Distrito: <input type='text' name='Distrito'>" \
         + "<input type='submit' value='Filtrar'></form>"
+    enlaces = []
+    enlaces.append(enlaceInicio)
+    enlaces.append(enlaceTodos)
+    enlaces.append(enlaceAyuda)
     #Si no hay Parkings en la base de datos, los obtendremos mediante el XML
     try:
         if request.method == 'GET':
             parkings = Aparcamientos.objects.all()
-            ContentBody = "<ul><h2> Listado De Parkings</h2>"
+            ContentBody = "<ul>"
             for i in parkings:
-                ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a></li>"
+                botonAñadir = "<form class='Personal' action='/" + str(request.user) + "' method='POST'>" \
+                    + "<button type='submit' name='Add' value='" + str(i.id) + "'> Add </button></form>"
+                ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a>"+ botonAñadir + "</li>"
             ContentBody = ContentBody + "</li>"
         elif request.method == 'POST':
             ContentBody = "Probando"
@@ -273,9 +288,19 @@ def todosAparcamientos(request):
             for i in parkings:
                 ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a></li>"
             ContentBody = ContentBody + "</li>"
-        return HttpResponse(header + formularioFiltrado + ContentBody)
+        #Vamos a renderizar
+        plantilla = get_template('aparcamientos.html')
+        Context = ({'login': header,
+                    'enlaces': enlaces,
+                    'formmulario': formularioFiltrado,
+                    'listado': ContentBody})
+        return HttpResponse(plantilla.render(Context))
     except Aparcamientos.DoesNotExist:
-        return HttpResponse("Aqui Usaremos el XML y obtendremos los datos")
+        plantilla = get_template('error.html')
+        Context = ({'Contenido' : "No hay Aparcamientos en la base de datos, clicka aqui para obtenerlos",
+                    'enlaces': enlaces,
+                    'login' : header})
+        return HttpResponse(plantilla.render(Context))
 
 @csrf_exempt
 def infoAparcamiento(request, id):
@@ -298,7 +323,12 @@ def infoAparcamiento(request, id):
             parking = Aparcamientos.objects.get(id=id)
             bodyHtml = obtainInfoParking(parking)
             Content = bodyHtml + formularioComentario
-            return HttpResponse(Content)
+            #Procedemos a renderizar
+            plantilla = get_template("info.html")
+            Content = ({'login': header,
+                        'enlaces': enlaces,
+                        'content': Content})
+            return HttpResponse(plantilla.render(Content))
         except Aparcamientos.DoesNotExist:
             plantilla = get_template("error.html")
             ContentInfo = "No existe el aparcamiento solicitado"
@@ -306,7 +336,6 @@ def infoAparcamiento(request, id):
                         'enlaces': enlaces,
                         'Contenido': ContentInfo})
             return HttpResponseNotFound(plantilla.render(Content))
-
     #Aqui controlamos el postear un comentario
     elif request.method == 'POST':
         comentarioPOST = request.body.decode('utf-8').split("=")[1]

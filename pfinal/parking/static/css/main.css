@@ -132,11 +132,28 @@ code, kbd, samp {font-family:monospace; font-size:110%;}
 #content {float:left; width:530px; _width:550px; margin:0; padding:0 0 0 20px;}
 
     /* Content - article */
-    #content .article {clear:both;height: 140px;margin:0; padding:10px; background:url("../design/content_article_bg.jpg") 0 0 no-repeat;}
+  #content .article {clear:both;height: 140px;margin:0; padding:10px; background:url("../design/content_article_bg.jpg") 0 0 no-repeat;}
     #content .article h2 {margin:0 -20px; padding:10px; background:#DEE5FD url("../design/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
     #content .article h2 span {background:url("../design/ico_list.gif") 0 50% no-repeat; padding-left:25px;}
 
-    #content .article p {text-align:justify;}
+    #content .article p {text-align:justify; font-size: 130%;}
+    /*Content - Personal HTML*/
+    #content div.Personal {width: 700px;;height: 165px;padding: 10px}
+    #content h2.Personal  {text-align: center;width: 750px;;margin:0 -20px; padding:10px; background:#DEE5FD url("../design/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
+    #content .Personal p.Personal {width: auto;text-align: justify; font-size: 130%; text-align: center;}
+    #content form.Personal {text-align: center;}
+    #content form#formularioTitulo {width: 700px;text-align: center}
+
+    /*Content - Listado Parkings */
+    #content h2.Aparcamientos  {text-align: center;width: 750px;;margin:0 -20px; padding:10px; background:#DEE5FD url("../design/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
+    #content div.Aparcamientos {width: 700px; padding: 10px; text-align: center;}
+    #content .Aparcamientos li {margin: 20px;font-size: 130%}
+    #content .Aparcamientos li button {margin: 10px}
+
+    /*Content - Info Parking */
+    #content h3.info {text-align: center;width: 750px;;margin:0 -20px; padding:10px; background:#DEE5FD url("../design/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
+    #content div.info {width: 700px; padding: 10px; text-align: center;}
+
     #content .info {margin:10px 0; padding-bottom:8px; border-bottom:1px solid #DEE5FD; color:#6685CC;}
     #content .info a {color:#6685CC;}
     #content .info a:hover {color:#FF9000;}
