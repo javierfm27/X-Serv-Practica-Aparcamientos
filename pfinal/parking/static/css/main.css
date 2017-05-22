@@ -79,17 +79,20 @@ code, kbd, samp {font-family:monospace; font-size:110%;}
 #main {width:770px; margin:50px auto 0 auto; _text-align:left;}
 
 /* Header */
-#header {position:relative; width:770px; height:122px; margin:0; padding:0; background:#233C9B url("../images/header.jpg") 0 0 no-repeat; color:#FFF}
+#header {position:relative; width:765px; height:100px; margin:0; padding:0; left: 0px;background:#233C9B url("../images/header.jpg") 0px 0px no-repeat; color:#FFF}
 
     /* Header - logo */
-    #header #logo {position:absolute; top:0px; left:25px; margin:0;opacity: 0.7}
+    #header #logo {position:absolute; top:0px; left:65px; margin:0;opacity: 0.7}
 
     #header #logo a {color:#FFF;}
     #header #logo a:hover {color:#B5C4E3;}
 
     /*Header - login */
-    #header #login {width: auto; height: 122px;left: 10px;margin-left: 40px}
+    #header #login {width: auto; height: 100px;left: 10px;}
+    #header #login span{position: relative;right: 20px; top: 35px}
     #header #login a {color: black;}
+    #header #login form {width: auto; height: 100px}
+    #header #login input {height: auto; position: relative;right: 20px}
 
 /* Main menu (tabs) */
 #tabs {background:#192666; margin:0 5px; padding:10px 0 0 0; _height:1px;}
@@ -113,8 +116,8 @@ code, kbd, samp {font-family:monospace; font-size:110%;}
     #tabs ul li#active a span.tab-r {position:absolute; top:0; right:0; width:8px; height:8px; background:url("../images/tab_active_r.gif") 100% 0 no-repeat;}
 
 /* Page (2 columns) */
-#page {width:770px; min-height:1px; background:#FFF url("../design/bg_page.gif") 0 0 repeat-y; _height:1px;}
-#page-in {min-height:1px; padding:10px 0; background:url("../design/bg_page_in.jpg") 0 0 no-repeat; _height:1px;}
+#page {width:762px; position:relative; left: 3px;min-height:1px; background:#FFF url("../design/bg_page.gif") 0 0 repeat-y; _height:1px;}
+#page-in {min-height:1px;padding:10px 0; background:url("../design/bg_page_in.jpg") 0 0 no-repeat; _height:1px;}
 
 /* Strip */
 #strip {position:relative; clear:both; padding:3px 20px 10px 20px; color:#6182D1;}
@@ -143,16 +146,21 @@ code, kbd, samp {font-family:monospace; font-size:110%;}
     #content .Personal p.Personal {width: auto;text-align: justify; font-size: 130%; text-align: center;}
     #content form.Personal {text-align: center;}
     #content form#formularioTitulo {width: 700px;text-align: center}
+    #content .Personal #RSS {background-image: url("../images/ico_rss.gif") no-repeat}
 
     /*Content - Listado Parkings */
     #content h2.Aparcamientos  {text-align: center;width: 750px;;margin:0 -20px; padding:10px; background:#DEE5FD url("../images/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
     #content div.Aparcamientos {width: 700px; padding: 10px; text-align: center;}
     #content .Aparcamientos li {margin: 20px;font-size: 130%}
     #content .Aparcamientos li button {margin: 10px}
+    #content div.Aparcamientos form#buscarDistrito {background: url("../images/search_submit.gif") 80% 90% no-repeat}
 
     /*Content - Info Parking */
     #content h3.info {text-align: center;width: 750px;;margin:0 -20px; padding:10px; background:#DEE5FD url("../design/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
     #content div.info {width: 700px; padding: 10px; text-align: center;}
+    #content div.info #comments {background: url("../images/ico_comments.gif") 280px 100% no-repeat;}
+    #content div.info dl {font-size: medium; text-align: justify;}
+    #content div.info dd {font-size: x-small;text-align: center;}
 
     #content .info {margin:10px 0; padding-bottom:8px; border-bottom:1px solid #DEE5FD; color:#6685CC;}
     #content .info a {color:#6685CC;}
@@ -196,7 +204,7 @@ code, kbd, samp {font-family:monospace; font-size:110%;}
     /* Right column - Links */
     #col ul#links {margin:15px 0; padding:0; list-style:none;}
     #col ul#links li {margin:0; padding:0; border-bottom:1px solid #E0E8FA;}
-    #col ul#links li a {display:block; padding:3px 0 3px 22px; background:url("../images/ico_links.gif") 5px 6px no-repeat;color: purple; text-decoration:none;}
+    #col ul#links li a {display:block; padding:3px 0 3px 22px; background:url("../images/ico_user.gif") 5px 6px no-repeat;color: purple; text-decoration:none;}
     #col ul#links li a:hover {background-color:#D3DFF8; color:#192666;}
 
 /* Footer */

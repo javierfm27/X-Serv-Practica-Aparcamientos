@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 from django.contrib.auth import logout, authenticate, login
 from django.db import models
 from urllib.parse import unquote_plus
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 enlaceInicio = "<a href='/'> Inicio </a>"
 enlaceTodos = "<a href='/aparcamientos'>Todos</a>"
@@ -140,15 +141,17 @@ def obtainInfoParking(aparcamiento):
     except ContactosParking.DoesNotExist:
         htmlContacto = "<dt>Contacto</dt><dd> No hay Contacto</dd>"
     #Body HTML
-    bodyHtml = "<h3 class='info'>Info Detallada</h3>" \
+    bodyHtml = "<h3 class='info'>INFO APARCAMIENTO</h3>" \
             + "<dl class='info'><dt>Nombre de Parking</dt>" \
                 + "<dd>" + aparcamiento.nombre + "</dd>" \
                 + "<dt>Direccion</dt>" \
                 + "<dd>" + aparcamiento.direccion + "</dd>" \
                 + "<dt>Accesibilidad</dt>" \
                 + "<dd>" + str(aparcamiento.Accesibilidad) + "</dd>" \
-                + "<dt>Latitud y Longitud</dt>" \
-                + "<dd>" + str(aparcamiento.latitud) + str(aparcamiento.longitud) + "</dd>" \
+                + "<dt>Latitud</dt>"\
+                + "<dd>" + str(aparcamiento.latitud) + "</dd>" \
+                +"<dt>Longitud</dt>" \
+                + "<dd>" + str(aparcamiento.longitud) + "</dd>" \
                 + "<dt>Barrio</dt>" \
                 + "<dd>" + aparcamiento.barrio + "</dd>" \
                 + "<dt>Distrito</dt>" \
@@ -158,12 +161,25 @@ def obtainInfoParking(aparcamiento):
                 + htmlContacto + "</dl>"
     try:
         listaComentarios = Comentarios.objects.filter(Aparcamiento=aparcamiento)
-        htmlComentarios = "Comentarios<br><ul>"
+        htmlComentarios = "<h4 id='comments'><span>Comentarios</span></h4><ul>"
         for i in listaComentarios:
-            htmlComentarios = htmlComentarios + "<li>" + i.Comentario + "</li></ul>"
+            htmlComentarios = htmlComentarios + "<li class='comments'>" + i.Comentario + "</li></ul><br>"
     except Comentarios.DoesNotExist:
         htmlComentarios = "No Hay Comentarios para este aparcamiento"
     return (bodyHtml + htmlComentarios)
+
+def addParking(datosDic):
+    direccion = datosDic['CLASE-VIAL'] +  "  " + datosDic['NOMBRE-VIA']
+    if datosDic['ACCESIBILIDAD'] == 0:
+        accesible = False
+    else:
+        accesible = True
+    aparcamiento = Aparcamientos(nombre=datosDic['NOMBRE'], descripcion=datosDic['DESCRIPCION'],
+            urlP=datosDic['CONTENT-URL'], Accesibilidad=accesible, direccion=direccion, barrio=datosDic['BARRIO'],
+            distrito=datosDic['DISTRITO'], latitud=float(datosDic['LATITUD']), longitud=float(datosDic['LONGITUD']),
+            nComen=0)
+    aparcamiento.save()
+
 
 #################################################################################################################################3
 # Create your views here.
@@ -171,14 +187,27 @@ def obtainInfoParking(aparcamiento):
 def barra(request):
     header, booleanLogin = stringLogin(request)
     if request.method == 'GET':
-        boton = "<form method='POST'>"\
-            + "<button type='submit' name='Accesibilidad' value=1 >Mostrar Accesibles</button></form>"
-        TituloBarra = "Aparcamientos Mas Comentados"
         #Aparcamientos mas comentados
         parkings = Aparcamientos.objects.all()
-        aparcamientos = parkings.order_by('-nComen')
-        Content = listaAparcamientos(aparcamientos, request, 0, request.user)
-
+        if len(parkings) == 0:
+            botonRecarga = "<form action='recarga' method='GET'>" \
+                    + "<button type='submit' name='Recargar'> Obtener Aparcamientos</button></form>"
+            Content = "No hay aparcamientos en la base de datos. " + botonRecarga
+            plantilla =  get_template('error.html')
+            enlaces = []
+            enlaces.append(enlaceInicio)
+            enlaces.append(enlaceTodos)
+            enlaces.append(enlaceAyuda)
+            Context = {'login': header,
+                       'enlaces': enlaces,
+                       'Contenido': Content}
+            return HttpResponse(plantilla.render(Context))
+        else:
+            boton = "<form method='POST'>"\
+                + "<button type='submit' name='Accesibilidad' value=1 >Mostrar Accesibles</button></form>"
+            TituloBarra = "Aparcamientos Mas Comentados"
+            aparcamientos = parkings.order_by('-nComen')[:5]
+            Content = listaAparcamientos(aparcamientos, request, 0, request.user)
     elif request.method == 'POST':
         opcionAccesibles = request.body.decode('utf-8')
         opcionAccesibles = opcionAccesibles.split("=")[1]
@@ -252,16 +281,80 @@ def seleccionPersonal(request, nombreUser):
                 'enlaces': enlaces,
                 'TituloPagina': titulo,
                 'seleccionUsuario': Content,
-                'formulario': formulario})
+                'formulario': formulario,
+                'usuario': nombreUser})
     return HttpResponse(plantilla.render(Context))
+
+
+
+def showXml(request, usuarioGET):
+    from lxml import etree as et
+
+    #Creamos el elemento raiz de nuestro XML
+    rootXML = et.Element('Coleccion')
+    docXml = et.ElementTree(rootXML)
+
+    #Empezamos a crear el documento
+    infoColeccion = et.SubElement(rootXML, 'infoColeccion')
+    infoColeccion.text = "Coleccion Personal del usuario " + str(usuarioGET)
+
+    #Aqui añadiremos los parkings
+    Usuario = User.objects.get(username=usuarioGET)
+    parkingsUsuario = ParkingSeleccion.objects.filter(Usuario=Usuario)
+    for i in parkingsUsuario:
+        aparcamientoTag = et.SubElement(rootXML,'aparcamiento')
+        aparcamiento = Aparcamientos.objects.get(id=i.Aparcamiento.id)
+        #Generamos un diccionario de Atributos donde ira la informacion
+        nombreP = et.SubElement(aparcamientoTag, 'nombre')
+        nombreP.text = aparcamiento.nombre
+        descripcionP = et.SubElement(aparcamientoTag, 'descripcion')
+        descripcionP.text = aparcamiento.descripcion
+        urlP = et.SubElement(aparcamientoTag,'link')
+        urlP.text = aparcamiento.urlP
+        localizacion = et.SubElement(aparcamientoTag, 'localizacion')
+        localizacion.text = aparcamiento.direccion
+        barrioTag = et.SubElement(aparcamientoTag,'barrio')
+        barrioTag.text = aparcamiento.barrio
+        #Añadimos el contacto
+        try:
+            contacto = ContactosParking.objects.get(Aparcamiento=aparcamiento.id)
+            contactoTag = et.SubElement(aparcamientoTag,'contacto')
+            contactoTag.text = "Tlfno. " + contacto.telefono + " email: " + contacto.email
+        except ContactosParking.DoesNotExist:
+            contactoTag = et.SubElement(aparcamientoTag,'contacto')
+            contactoTag.text = "No existe Contacto Alguno"
+
+    return HttpResponse(et.tostring(rootXML,pretty_print=True),content_type='text/xml')
+
+
 
 @csrf_exempt
 def todosAparcamientos(request):
     #Funcion que mostrara la lista de Parkings
 
     header, login = stringLogin(request)
-    formularioFiltrado = "<form method='POST'>"\
-        + "Buscar por Distrito: <input type='text' name='Distrito'>" \
+    formularioFiltrado = "<form  id='buscarDistrito' method='POST'>"\
+        + "Buscar por Distrito: <select name='Distrito'>" \
+        + "<option value='CENTRO'>Centro</option>" \
+        + "<option value='CHAMARTIN'>Chamartin</option>" \
+        + "<option value='TETUAN'>Tetuan</option>" \
+        + "<option value='MONCLOA-ARAVACA'>Moncloa - Aravaca </option>" \
+        + "<option value='RETIRO'>Retiro</option>" \
+        + "<option value='SALAMANCA'>Salamanca</option>" \
+        + "<option value='MORATALAZ'>Moratalaz</option>" \
+        + "<option value='CHAMBERI'>Chamberi</option>" \
+        + "<option value='SAN BLAS-CANILLEJAS'>San Blas - Canillejas</option>" \
+        + "<option value='CIUDAD LINEAL'>Ciudad lineal</option>" \
+        + "<option value='FUENCARRAL-EL PARDO'>Fuencarral - El pardo </option>" \
+        + "<option value='ARGANZUELA'>Arganzuela</option>" \
+        + "<option value='VILLA DE VALLECAS'>Villa de Vallecas</option>" \
+        + "<option value='LATINA'>Latina</option>" \
+        + "<option value='HORTALEZA'>Hortaleza</option>" \
+        + "<option value='PUENTE DE VALLECAS'>Puente de Vallecas</option>" \
+        + "<option value='CARABANCHEL'>Carabanchel</option>" \
+        + "<option value='VILLAVERDE'>Villaverde</option>" \
+        + "<option value='BARAJAS'>Barajas</option>" \
+        + "</select>" \
         + "<input type='submit' value='Filtrar'></form>"
     enlaces = []
     enlaces.append(enlaceInicio)
@@ -270,7 +363,17 @@ def todosAparcamientos(request):
     #Si no hay Parkings en la base de datos, los obtendremos mediante el XML
     try:
         if request.method == 'GET':
-            parkings = Aparcamientos.objects.all()
+            parkingsTodos = Aparcamientos.objects.all()
+            paginator = Paginator(parkingsTodos, 5) #Mostrara 5 aparcamientos de 5 en 5
+            #Obtenemos la pagina de Contactos
+            pagina = request.GET.get('page')
+
+            try:
+                parkings = paginator.page(pagina)
+            except PageNotAnInteger:
+                parkings = paginator.page(1)
+            except:
+                parkings = paginator.page(paginator.num_pages)
             ContentBody = "<ul>"
             for i in parkings:
                 botonAñadir = "<form class='Personal' action='/" + str(request.user) + "' method='POST'>" \
@@ -280,25 +383,37 @@ def todosAparcamientos(request):
                 else:
                     ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a></li>"
             ContentBody = ContentBody + "</ul>"
-            ContentBody = ContentBody + formularioFiltrado
+            ContentBody = ContentBody + "<br>"
+            print(parkings)
         elif request.method == 'POST':
-            Distrito = request.body.decode('utf-8').split("=")[1]
+            #Obtenemos el keyPOST y el valuePost
+            keyPOST, valuePOST = request.body.decode('utf-8').split("=")
+            Distrito = valuePOST
             Distrito = unquote_plus(Distrito)
+            Distrito = Distrito.upper() #Necesario para que se pueda realziar el filtrado
+            print(Distrito)
             parkings = Aparcamientos.objects.filter(distrito=Distrito)
             ContentBody = "<ul>"
             for i in parkings:
                 ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a></li>"
             ContentBody = ContentBody + "</li>"
+            parkings = ""
+
+
         #Vamos a renderizar
         plantilla = get_template('aparcamientos.html')
         Context = ({'login': header,
                     'enlaces': enlaces,
-                    'formmulario': formularioFiltrado,
-                    'listado': ContentBody})
+                    'listado': ContentBody,
+                    'filtradoBox': formularioFiltrado,
+                    'parkings': parkings})
+
         return HttpResponse(plantilla.render(Context))
     except Aparcamientos.DoesNotExist:
         plantilla = get_template('error.html')
-        Context = ({'Contenido' : "No hay Aparcamientos en la base de datos, clicka aqui para obtenerlos",
+        botonRecarga = "<form action='recarga' method='GET'>" \
+                + "<button type='submit' name='Recargar'> Obtener Aparcamientos</button></form>"
+        Context = ({'Contenido' : "No hay Aparcamientos en la base de datos, clicka aqui para obtenerlos" + botonRecarga,
                     'enlaces': enlaces,
                     'login' : header})
         return HttpResponse(plantilla.render(Context))
@@ -372,6 +487,24 @@ def informacion(request):
                 'login': header,
                 'enlaces': enlaces})
     return HttpResponse(plantilla.render(Content))
+
+
+
+def obtengoDatos(request):
+    #Aqui obtendre los datos de los Aparcamientos y estos seran añadidos en la base de datos
+
+    #Importo la clase creada para usar el xml
+    from parking import parseP
+
+    link = 'http://datos.munimadrid.es/portal/site/egob/menuitem.ac61933d6ee3c31cae77ae7784f1a5a0/?vgnextoid=00149033f2201410VgnVCM100000171f5a0aRCRD&format=xml&file=0&filename=202584-0-aparcamientos-residentes&mgmtid=e84276ac109d3410VgnVCM2000000c205a0aRCRD&preview=full'
+    parseador = parseP.parseadorP(link)
+    listaParkings = parseador.listaContenidos()
+    for i in listaParkings:
+        parseador.obtengoElemento(i)
+        addParking(parseador.datos)
+    return redirect(barra)
+
+
 
 @csrf_exempt
 def loginUser(request):

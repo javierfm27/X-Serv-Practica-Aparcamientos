@@ -22,10 +22,12 @@ urlpatterns = [
     url(r'^static/(?P<path>.*)$',serve,{'document_root':settings.STATIC_URL}),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.barra, name="Pagina Principal del sitio"),
+    url(r'^recarga', views.obtengoDatos, name="Obtengo los datos y redirigo a la pagina principal"),
     url(r'^login', views.loginUser, name="Pagina que logea con los datos obtenidos del formulario Usuario y Contraseña"),
     url(r'^logout', views.mylogout, name="Pagina para desconectar"),
     url(r'^aparcamientos/(\d+)', views.infoAparcamiento, name="Muestra todos los datos de un Parking"),
     url(r'^about$', views.informacion, name="Pagina que explica la funcionalidad de la practica"),
     url(r'^aparcamientos$', views.todosAparcamientos, name="Listado de todos los Parkings que maneja la App"),
+    url(r'^(.+)/xml$', views.showXml, name='Pagina donde mostraremos el xml del usuario en cuestion '),
     url(r'^(.+)',views.seleccionPersonal, name="Paginas de los usuarios registrados"),
 ]

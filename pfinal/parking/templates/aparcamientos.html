@@ -1,9 +1,21 @@
 {% extends "index.html" %}
 {% block content %}
   <h2 class='Aparcamientos'> Listado de Parkings </h2>
-  {{ formulario|safe }}
   <div class='Aparcamientos'>
     {{ listado|safe }}
+
+    {% if parkings.has_previous %}
+      <a href="?page={{ parkings.previous_page_number }}"> Anterior</a>
+    {% endif %}
+
+    {{ parkings.number }} - {{ parkings.paginator.num_pages }}
+
+    {% if parkings.has_next %}
+      <a href="?page={{ parkings.next_page_number }}"> Siguiente</a>
+    {% endif %}
+
+    {{ filtradoBox|safe }}
   </div>
   <hr class="noscreen" />
+
 {% endblock %}
