@@ -127,14 +127,18 @@ code, kbd, samp {font-family:monospace; font-size:110%;}
   #content .article {clear:both;height: 140px;margin-right: 10px; padding:20px; background:url("../images/content_article_bg.jpg") 0 0 no-repeat;}
     #content .article h2 {margin:0 -20px; padding:10px; background:#DEE5FD url("../images/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
     #content .article h2 span {background:url("../images/ico_list.gif") 0 50% no-repeat; padding-left:25px;}
+    /*Barra */
+    #content p#listado {border: 2px solid blue;border-radius: 4px;margin-right: 5px;padding:5px;}
+
 
     #content .article p {text-align:justify; font-size: 130%;}
     /*Content - Personal HTML*/
-    #content div.Personal {width: 700px;;height: 150px;padding: 5px}
+    #content div.Personal {width: 700px;;height: 150px;padding: 5px;margin: 5px;border: 2px solid blue;border-radius: 4px;margin-right: 5px;}
     #content h2.Personal  {text-align: center;width: 750px;;margin:0 -20px; padding:7px; background:#DEE5FD url("../images/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
     #content .Personal p.Personal {width: auto;text-align: justify; font-size: 130%; text-align: center;}
     #content form.Personal {text-align: center;}
     #content form#formularioTitulo {width: 700px;text-align: center}
+    #cotent #enlacesNext {text-align: justify}
     #content #RSS {background-image: url("../images/ico_rss.gif"); background-repeat: no-repeat; background-position:39%;}
 
     /*Content - Listado Parkings */

@@ -13,6 +13,22 @@
 
     </div>
     {% endfor %}
+
+    <!-- Enlaces A siguiente y Anterior -->
+    <div id="enlacesNext">
+      {% if parkings.has_previous %}
+        <a href="?page={{ parkings.previous_page_number }}"> Anterior</a>
+      {% endif %}
+
+      {{ parkings.number }} - {{ parkings.paginator.num_pages }}
+
+      {% if parkings.has_next %}
+        <a href="?page={{ parkings.next_page_number }}"> Siguiente</a>
+      {% endif %}
+    </div>
+    <!-- /Enlaces A siguiente y Anterior -->
+    <br>
+
     <div id ='RSS'>
       <span> Obtener XML de este usuario. <a href='/{{usuario}}/xml'> RSS </a></span>
     </div>

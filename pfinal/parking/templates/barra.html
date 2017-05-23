@@ -10,12 +10,8 @@
   <h2> {{ TituloBarra|safe }} </h2>
   {%for i in Aparcamientos %}
   <!-- Article -->
-  <div class="article">
-      <h2><span><a href="#"></a></span></h2>
-
-      <p>{{ i|safe }}</p>
-
-  </div> <!-- /article -->
+      <p id="listado">{{ i|safe }}</p>
+<!-- /article -->
 
   <hr class="noscreen" />
   {% endfor %}

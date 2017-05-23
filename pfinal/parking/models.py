@@ -34,6 +34,6 @@ class ParkingSeleccion (models.Model):
     Fecha = models.DateField(auto_now=True)
 
 class EstiloUser (models.Model):
-    Tamaño = models.FloatField()
+    Tamaño = models.FloatField(default=2.8)
     Color = models.CharField(max_length=32)
     Usuario = models.OneToOneField(User)

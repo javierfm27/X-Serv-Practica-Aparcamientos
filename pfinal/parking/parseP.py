@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from urllib.request import *
-from bs4 import BeautifulSoup as BS
+from parking.bs4 import _soup as BS
 
 class parseadorP:
 

@@ -113,7 +113,7 @@ def postUsuario(request):
         #2º Controlamos el tamaño de la letra
         tamañoLetra = listaPOST[1].split("=")[1]
         if tamañoLetra == "":
-            tamañoLetra = 0
+            tamañoLetra = 2.8
         try:
             usuario = User.objects.get(username=request.user)
             nuevoCSS = EstiloUser.objects.get(Usuario=usuario)
@@ -147,11 +147,21 @@ def obtainBodyUser(usuarioGET, request):
 
         #Obtenemos la lista de Aparcamientos seleccionados
         listaParkings = ParkingSeleccion.objects.filter(FichaPersonal=coleccion)
+        paginator = Paginator(listaParkings, 5) #Mostrara 5 aparcamientos de 5 en 5
+        #Obtenemos la pagina de Contactos
+        pagina = request.GET.get('page')
+        try:
+            parkings = paginator.page(pagina)
+        except PageNotAnInteger:
+            parkings = paginator.page(1)
+        except:
+            parkings = paginator.page(paginator.num_pages)
+
         ContentBody = []
-        for i in listaParkings:
+        for i in parkings:
             aparcamiento = i.Aparcamiento
             ContentBody.append(listaAparcamientos(aparcamiento,request, 1, usuarioGET))
-        return(Titulo, formulario,ContentBody)
+        return(Titulo, formulario,ContentBody,parkings)
     except PaginaPersonal.DoesNotExist:
         nuevaPagina = PaginaPersonal(Titulo="", usuario=usuarioGET)
         nuevaPagina.save()
@@ -241,7 +251,8 @@ def barra(request):
             boton = "<form method='POST'>"\
                 + "<button type='submit' name='Accesibilidad' value=1 >Mostrar Accesibles</button></form>"
             TituloBarra = "Aparcamientos Mas Comentados"
-            aparcamientos = parkings.order_by('-nComen')[:5]
+            aparcamientosComen = Aparcamientos.objects.filter(nComen__gt=0)
+            aparcamientos = aparcamientosComen.order_by('-nComen')[:5]
             Content = listaAparcamientos(aparcamientos, request, 0, request.user)
     elif request.method == 'POST':
         opcionAccesibles = request.body.decode('utf-8')
@@ -298,13 +309,13 @@ def seleccionPersonal(request, nombreUser):
     if request.method == 'GET':
         try:
             usuario = User.objects.get(username=nombreUser)
-            titulo,formulario ,Content = obtainBodyUser(usuario,request)
+            titulo,formulario ,Content ,parkings = obtainBodyUser(usuario,request)
             if request.user == usuario:
                 formularioEstilo = "<form method='POST'>" \
                         + "<label for='Color'>Escoge un color    </label>" \
                         + "<input id='Color' type='color' name='color'>" \
                         + "<label for='Size'>  Escoge un tamaño de letra(mm)     </label>"\
-                        + "<input id='Size' min='2' max='4' step='0.01' type='number' name='sizeWord'>" \
+                        + "<input id='Size' min='2' max='4' step='0.10' type='number' name='sizeWord'>" \
                         + "<input type='submit' value='Enviar'>" \
                         + "</form>"
             else:
@@ -329,7 +340,8 @@ def seleccionPersonal(request, nombreUser):
                 'seleccionUsuario': Content,
                 'formulario': formulario,
                 'usuario': nombreUser,
-                'estilo': formularioEstilo})
+                'estilo': formularioEstilo,
+                'parkings': parkings})
     return HttpResponse(plantilla.render(Context))
 
 
@@ -561,10 +573,9 @@ def estiloPropio(request):
         Color = estilo.Color.split("%23")[1].upper()
         Color = "#" + Color
         tamaño = str(estilo.Tamaño) + "mm"
-        print(tamaño)
     else:
         Color = "#192666"
-        tamaño = "2,80mm"
+        tamaño = "2.80mm"
 
     plantillaCSS = get_template('personal.css')
     Context = ({'color': Color,
