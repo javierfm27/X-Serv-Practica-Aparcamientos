@@ -138,7 +138,7 @@ code, kbd, samp {font-family:monospace; font-size:110%;}
     #content .Personal p.Personal {width: auto;text-align: justify; font-size: 130%; text-align: center;}
     #content form.Personal {text-align: center;}
     #content form#formularioTitulo {width: 700px;text-align: center}
-    #cotent #enlacesNext {text-align: justify}
+    #enlacesNext {width: 720px;text-align: center;}
     #content #RSS {background-image: url("../images/ico_rss.gif"); background-repeat: no-repeat; background-position:39%;}
 
     /*Content - Listado Parkings */
