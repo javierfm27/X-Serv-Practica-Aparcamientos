@@ -1,6 +1,10 @@
 {% extends "index.html" %}
 {% block content %}
-  <h2 class='Personal'> {{ TituloPagina | safe }} </h2>
+  <div id='Estilo'>
+    {{ estilo|safe }}
+  </div>
+  <br>
+  <h2 class='Personal'> {{ TituloPagina | safe }} </h2> <br>
   {{ formulario|safe }}
     {% for aparcamientos in seleccionUsuario %}
     <div class="Personal">
@@ -9,7 +13,9 @@
 
     </div>
     {% endfor %}
-    <span> Obtener XML de este usuario. <a id='RSS' href='/{{usuario}}/xml'> RSS </a></span> 
+    <div id ='RSS'>
+      <span> Obtener XML de este usuario. <a href='/{{usuario}}/xml'> RSS </a></span>
+    </div>
     <hr class="noscreen" />
 
 {% endblock %}

@@ -75,34 +75,57 @@ def listaPaginasPersonalesBarra():
     return (ContentLateral)
 
 
+
+
 def postUsuario(request):
     #Procesa el POST que haremos sobre /(usuario)
-    keyPost, valuePost = request.body.decode('utf-8').split("=")
-    print(valuePost)
-    #Antes de nada comprobaremos si existe la pagina, si no, la creamos
-    usuario = User.objects.get(username=str(request.user))
-    try:
-        PaginaPersonal.objects.get(usuario=usuario)
-    except PaginaPersonal.DoesNotExist:
-        nuevaPagina = PaginaPersonal(Titulo="", usuario=usuario)
-        nuevaPagina.save()
-    #Comprobamos si se esta haciendo un POST para añadir aparcamiento o para modificar el titulo de nuestra coleccion
-    if keyPost == 'Add':
-        coleccion = PaginaPersonal.objects.get(usuario=usuario)
-        parking = Aparcamientos.objects.get(id=int(valuePost))
-        añadir = True
-        listaParkings = ParkingSeleccion.objects.filter(Usuario=usuario)
-        for i in listaParkings:
-            if i.Aparcamiento.nombre == parking.nombre:
-                añadir = False
-                break
-        if añadir == True:
-            adiccion = ParkingSeleccion(Aparcamiento=parking, Usuario=usuario, FichaPersonal=coleccion)
-            adiccion.save()
-    elif keyPost == 'Titulo':
-        pagina = PaginaPersonal.objects.get(usuario=usuario)
-        pagina.Titulo = unquote_plus(valuePost)
-        pagina.save()
+    print("post" + request.body.decode('utf-8'))
+    listaPOST = request.body.decode('utf-8').split("&")
+    if len(listaPOST) == 1:
+        keyPost, valuePost = request.body.decode('utf-8').split("=")
+        #Antes de nada comprobaremos si existe la pagina, si no, la creamos
+        usuario = User.objects.get(username=str(request.user))
+        try:
+            PaginaPersonal.objects.get(usuario=usuario)
+        except PaginaPersonal.DoesNotExist:
+            nuevaPagina = PaginaPersonal(Titulo="", usuario=usuario)
+            nuevaPagina.save()
+        #Comprobamos si se esta haciendo un POST para añadir aparcamiento o para modificar el titulo de nuestra coleccion
+        if keyPost == 'Add':
+            coleccion = PaginaPersonal.objects.get(usuario=usuario)
+            parking = Aparcamientos.objects.get(id=int(valuePost))
+            añadir = True
+            listaParkings = ParkingSeleccion.objects.filter(Usuario=usuario)
+            for i in listaParkings:
+                if i.Aparcamiento.nombre == parking.nombre:
+                    añadir = False
+                    break
+            if añadir == True:
+                adiccion = ParkingSeleccion(Aparcamiento=parking, Usuario=usuario, FichaPersonal=coleccion)
+                adiccion.save()
+        elif keyPost == 'Titulo':
+            pagina = PaginaPersonal.objects.get(usuario=usuario)
+            pagina.Titulo = unquote_plus(valuePost)
+            pagina.save()
+    else:
+        #1º Controlamos el color
+        valorColor = listaPOST[0].split("=")[1]
+        #2º Controlamos el tamaño de la letra
+        tamañoLetra = listaPOST[1].split("=")[1]
+        if tamañoLetra == "":
+            tamañoLetra = 0
+        try:
+            usuario = User.objects.get(username=request.user)
+            nuevoCSS = EstiloUser.objects.get(Usuario=usuario)
+            nuevoCSS.Color = valorColor
+            nuevoCSS.Tamaño = float(tamañoLetra)
+            nuevoCSS.save()
+        except EstiloUser.DoesNotExist:
+            usuario = User.objects.get(username=request.user)
+            nuevoCSS = EstiloUser(Tamaño=tamañoLetra,Color=valorColor,Usuario=usuario)
+            nuevoCSS.save()
+
+
 
 def obtainBodyUser(usuarioGET, request):
     #Funcion que genera el Html para /usuario
@@ -135,10 +158,10 @@ def obtainBodyUser(usuarioGET, request):
         return (nuevaPagina.Titulo,"" , "No hay ningun Parking en esta coleccion. De momento")
 
 def obtainInfoParking(aparcamiento):
-    try:
-        contacto = ContactosParking.objects.get(Aparcamiento=aparcamiento)
+    contacto = ContactosParking.objects.get(Aparcamiento=aparcamiento)
+    if not contacto.telefono == "S/T" or contacto.email == "":
         htmlContacto = "<dt>Tlfno. Contacto</dt><dd>"+ contacto.telefono + "</dd><dt>Email Contacto</dt><dd>"+ contacto.email + "</dd>"
-    except ContactosParking.DoesNotExist:
+    else:
         htmlContacto = "<dt>Contacto</dt><dd> No hay Contacto</dd>"
     #Body HTML
     bodyHtml = "<h3 class='info'>INFO APARCAMIENTO</h3>" \
@@ -170,7 +193,7 @@ def obtainInfoParking(aparcamiento):
 
 def addParking(datosDic):
     direccion = datosDic['CLASE-VIAL'] +  "  " + datosDic['NOMBRE-VIA']
-    if datosDic['ACCESIBILIDAD'] == 0:
+    if int(datosDic['ACCESIBILIDAD']) == 0:
         accesible = False
     else:
         accesible = True
@@ -179,7 +202,19 @@ def addParking(datosDic):
             distrito=datosDic['DISTRITO'], latitud=float(datosDic['LATITUD']), longitud=float(datosDic['LONGITUD']),
             nComen=0)
     aparcamiento.save()
-
+    #Controlamos el Contacto
+    print("Telfono-> " + str(datosDic['TELEFONO']))
+    print("EMAIL-> " + str(datosDic['EMAIL']))
+    if  not datosDic['TELEFONO'] == None:
+        if not datosDic['EMAIL'] == None:
+            nuevoContacto = ContactosParking(Aparcamiento=aparcamiento,telefono=datosDic['TELEFONO'],email=datosDic['EMAIL'])
+            nuevoContacto.save()
+        else:
+            nuevoContacto = ContactosParking(Aparcamiento=aparcamiento,telefono=datosDic['TELEFONO'])
+            nuevoContacto.save()
+    else:
+        nuevoContacto = ContactosParking(Aparcamiento=aparcamiento)
+        nuevoContacto.save()
 
 #################################################################################################################################3
 # Create your views here.
@@ -264,6 +299,16 @@ def seleccionPersonal(request, nombreUser):
         try:
             usuario = User.objects.get(username=nombreUser)
             titulo,formulario ,Content = obtainBodyUser(usuario,request)
+            if request.user == usuario:
+                formularioEstilo = "<form method='POST'>" \
+                        + "<label for='Color'>Escoge un color    </label>" \
+                        + "<input id='Color' type='color' name='color'>" \
+                        + "<label for='Size'>  Escoge un tamaño de letra(mm)     </label>"\
+                        + "<input id='Size' min='2' max='4' step='0.01' type='number' name='sizeWord'>" \
+                        + "<input type='submit' value='Enviar'>" \
+                        + "</form>"
+            else:
+                formularioEstilo = ""
         except User.DoesNotExist:
             plantilla = get_template('error.html')
             contenidoNotFound = "NO EXISTE EL USUARIO " + str(nombreUser)
@@ -275,6 +320,7 @@ def seleccionPersonal(request, nombreUser):
     elif request.method == 'POST':
         postUsuario(request)
         return redirect(seleccionPersonal,str(request.user))
+
     #Renderizamos para el html personal, ya que este es distinto que el de la Pagina Principal
     plantilla = get_template('personal.html')
     Context = ({'login': header,
@@ -282,7 +328,8 @@ def seleccionPersonal(request, nombreUser):
                 'TituloPagina': titulo,
                 'seleccionUsuario': Content,
                 'formulario': formulario,
-                'usuario': nombreUser})
+                'usuario': nombreUser,
+                'estilo': formularioEstilo})
     return HttpResponse(plantilla.render(Context))
 
 
@@ -363,7 +410,7 @@ def todosAparcamientos(request):
     #Si no hay Parkings en la base de datos, los obtendremos mediante el XML
     try:
         if request.method == 'GET':
-            parkingsTodos = Aparcamientos.objects.all()
+            parkingsTodos = Aparcamientos.objects.all() #Obtenemos los 267 aparcamientos
             paginator = Paginator(parkingsTodos, 5) #Mostrara 5 aparcamientos de 5 en 5
             #Obtenemos la pagina de Contactos
             pagina = request.GET.get('page')
@@ -384,7 +431,6 @@ def todosAparcamientos(request):
                     ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a></li>"
             ContentBody = ContentBody + "</ul>"
             ContentBody = ContentBody + "<br>"
-            print(parkings)
         elif request.method == 'POST':
             #Obtenemos el keyPOST y el valuePost
             keyPOST, valuePOST = request.body.decode('utf-8').split("=")
@@ -395,9 +441,13 @@ def todosAparcamientos(request):
             parkings = Aparcamientos.objects.filter(distrito=Distrito)
             ContentBody = "<ul>"
             for i in parkings:
-                ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a></li>"
+                botonAñadir = "<form class='Personal' action='/" + str(request.user) + "' method='POST'>" \
+                    + "<button type='submit' name='Add' value='" + str(i.id) + "'> Add </button></form>"
+                if request.user.is_authenticated():
+                    ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a>"+ botonAñadir + "</li>"
+                else:
+                    ContentBody = ContentBody + "<li><a href='aparcamientos/" + str(i.id) + "'>" + i.nombre + "</a></li>"
             ContentBody = ContentBody + "</li>"
-            parkings = ""
 
 
         #Vamos a renderizar
@@ -504,6 +554,22 @@ def obtengoDatos(request):
         addParking(parseador.datos)
     return redirect(barra)
 
+def estiloPropio(request):
+    if request.user.is_authenticated():
+        usuario = User.objects.get(username=request.user)
+        estilo = EstiloUser.objects.get(Usuario=usuario)
+        Color = estilo.Color.split("%23")[1].upper()
+        Color = "#" + Color
+        tamaño = str(estilo.Tamaño) + "mm"
+        print(tamaño)
+    else:
+        Color = "#192666"
+        tamaño = "2,80mm"
+
+    plantillaCSS = get_template('personal.css')
+    Context = ({'color': Color,
+                'tamaño': tamaño})
+    return HttpResponse(plantillaCSS.render(Context),content_type="text/css")
 
 
 @csrf_exempt

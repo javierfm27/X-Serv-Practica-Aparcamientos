@@ -39,3 +39,4 @@ if __name__ == "__main__":
     #Bucle para probar el arbol
     for i in listaAparcamientos:
         x.obtengoElemento(i)
+        print(x.datos)

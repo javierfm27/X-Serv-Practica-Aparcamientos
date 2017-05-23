@@ -1,18 +1,7 @@
-/*
-    Project: CrystalX
-    URL: http://www.nuvio.cz
 
-    Output device: screen, projection
-
-    Author: Vit Dlouhy (vit.dlouhy@nuvio.cz); Nuvio (www.nuvio.cz)
-    Last revision: 2006-12-05, 12:00 GMT+1
-
-    Structure:
-        display | position | float | overflow | width | height | border | margin | padding | background | align | font
-*/
 {% load static %}
 * {min-height:1px;}
-body {border:0; margin:0; padding:0; background:#F2F5FE url("../images/bg.gif") 0 0 repeat-x;font:70%/160% "verdana",sans-serif; color:#192666; _text-align:center;}
+body {border:0; margin:0; padding:0; background:#F2F5FE url("../images/bg.gif") 0 0 repeat-x;font:/*70%/160%*/ "verdana",sans-serif; _text-align:center}
 
 a {color:#192666;}
 a:hover {color:#4F6AD7;}
@@ -141,12 +130,12 @@ code, kbd, samp {font-family:monospace; font-size:110%;}
 
     #content .article p {text-align:justify; font-size: 130%;}
     /*Content - Personal HTML*/
-    #content div.Personal {width: 700px;;height: 165px;padding: 5px}
-    #content h2.Personal  {text-align: center;width: 750px;;margin:0 -20px; padding:10px; background:#DEE5FD url("../images/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
+    #content div.Personal {width: 700px;;height: 150px;padding: 5px}
+    #content h2.Personal  {text-align: center;width: 750px;;margin:0 -20px; padding:7px; background:#DEE5FD url("../images/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
     #content .Personal p.Personal {width: auto;text-align: justify; font-size: 130%; text-align: center;}
     #content form.Personal {text-align: center;}
     #content form#formularioTitulo {width: 700px;text-align: center}
-    #content .Personal #RSS {background-image: url("../images/ico_rss.gif") no-repeat}
+    #content #RSS {background-image: url("../images/ico_rss.gif"); background-repeat: no-repeat; background-position:39%;}
 
     /*Content - Listado Parkings */
     #content h2.Aparcamientos  {text-align: center;width: 750px;;margin:0 -20px; padding:10px; background:#DEE5FD url("../images/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
@@ -156,7 +145,7 @@ code, kbd, samp {font-family:monospace; font-size:110%;}
     #content div.Aparcamientos form#buscarDistrito {background: url("../images/search_submit.gif") 80% 90% no-repeat}
 
     /*Content - Info Parking */
-    #content h3.info {text-align: center;width: 750px;;margin:0 -20px; padding:10px; background:#DEE5FD url("../design/content_title_bg.gif") 0 0 repeat-y; color:#192666;}
+    #content h3.info {text-align: center;width: 770px;;margin:0 -30px; padding:10px; background:#DEE5FD ; color:#192666;}
     #content div.info {width: 700px; padding: 10px; text-align: center;}
     #content div.info #comments {background: url("../images/ico_comments.gif") 280px 100% no-repeat;}
     #content div.info dl {font-size: medium; text-align: justify;}

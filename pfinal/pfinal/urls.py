@@ -17,9 +17,12 @@ from django.contrib import admin
 from parking import views
 from pfinal import settings
 from django.views.static import *
+import os
 
 urlpatterns = [
     url(r'^static/(?P<path>.*)$',serve,{'document_root':settings.STATIC_URL}),
+    url(r'^main.css', views.estiloPropio,name='Pagina donde renderizo el CSS dinamico'),
+    url(r'^personal.css',views.estiloPropio),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^$', views.barra, name="Pagina Principal del sitio"),
     url(r'^recarga', views.obtengoDatos, name="Obtengo los datos y redirigo a la pagina principal"),

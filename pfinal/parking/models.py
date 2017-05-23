@@ -16,8 +16,8 @@ class Aparcamientos (models.Model):
 
 class ContactosParking (models.Model):
     Aparcamiento = models.ForeignKey(Aparcamientos)
-    telefono = models.IntegerField()
-    email = models.CharField(max_length=32)
+    telefono = models.CharField(max_length=32, blank=True)
+    email = models.CharField(max_length=32, blank=True)
 
 class Comentarios (models.Model):
     Aparcamiento = models.ForeignKey(Aparcamientos)
@@ -32,3 +32,8 @@ class ParkingSeleccion (models.Model):
     Usuario = models.ForeignKey(User)
     FichaPersonal = models.ForeignKey(PaginaPersonal)
     Fecha = models.DateField(auto_now=True)
+
+class EstiloUser (models.Model):
+    Tamaño = models.FloatField()
+    Color = models.CharField(max_length=32)
+    Usuario = models.OneToOneField(User)

@@ -1,0 +1,2 @@
+{% load static %}
+body{color: {{color }} ; font-size: {{tamaño}} }
