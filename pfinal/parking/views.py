@@ -253,8 +253,13 @@ def barra(request):
                 + "<button type='submit' name='Accesibilidad' value=1 >Mostrar Accesibles</button></form>"
             TituloBarra = "Aparcamientos Mas Comentados"
             aparcamientosComen = Aparcamientos.objects.filter(nComen__gt=0)
-            aparcamientos = aparcamientosComen.order_by('-nComen')[:5]
-            Content = listaAparcamientos(aparcamientos, request, 0, request.user)
+            if(len(aparcamientosComen) == 0):
+                TituloBarra = "<h2> No hay Aparcamientos Comentados</h2>"
+                Content = ""
+            else:
+                aparcamientos = aparcamientosComen.order_by('-nComen')[:5]
+                Content = listaAparcamientos(aparcamientos, request, 0, request.user)
+
     elif request.method == 'POST':
         opcionAccesibles = request.body.decode('utf-8')
         opcionAccesibles = opcionAccesibles.split("=")[1]
