@@ -35,13 +35,13 @@ def listaAparcamientos(lista, request, flag, usuario):
             if request.user.is_authenticated():
                 botonAñadir = "<form action='/" + str(request.user) + "' method='POST'>" \
                         + "<button type='submit' name='Add' value='" + str(p.id) + "'> Add </button></form>"
-                Content.append("<a class='info' href='" + p.urlP + "'> " + p.nombre + "</a><br>" \
+                Content.append("<p id='listado'><a class='info' href='" + p.urlP + "'> " + p.nombre + "</a><br>" \
                     + "Direccion: " + p.direccion + "<br>" \
-                    + "<a class='info' href='/aparcamientos/" + str(p.id) + "'> Mas Info</a><br>"+ botonAñadir + "<br>")
+                    + "<a class='info' href='/aparcamientos/" + str(p.id) + "'> Mas Info</a><br></p>"+ botonAñadir + "<br>")
             else:
-                Content.append("<a class='info' href='" + p.urlP + "'> " + p.nombre + "</a><br>" \
+                Content.append("<p id='listado'><a class='info' href='" + p.urlP + "'> " + p.nombre + "</a><br>" \
                     + "Direccion: " + p.direccion + "<br>" \
-                    + "<span class='info'><a class='info' href='/aparcamientos/" + str(p.id) + "'> Mas Info</a></span><br>")
+                    + "<span class='info'><a class='info' href='/aparcamientos/" + str(p.id) + "'> Mas Info</a></span></p><br>")
         return Content
     else:
         seleccion = ParkingSeleccion.objects.get(Aparcamiento=lista,Usuario=usuario)
@@ -170,33 +170,34 @@ def obtainBodyUser(usuarioGET, request):
 def obtainInfoParking(aparcamiento):
     contacto = ContactosParking.objects.get(Aparcamiento=aparcamiento)
     if not contacto.telefono == "S/T" or contacto.email == "":
-        htmlContacto = "<dt>Tlfno. Contacto</dt><dd>"+ contacto.telefono + "</dd><dt>Email Contacto</dt><dd>"+ contacto.email + "</dd>"
+        htmlContacto = "<li><strong>Tlfno. Contacto</strong> "+ contacto.telefono + "</li>"+ "<li><strong>Email Contacto</strong> "+ contacto.email + "</li>"
     else:
-        htmlContacto = "<dt>Contacto</dt><dd> No hay Contacto</dd>"
+        htmlContacto = "<li><strong>Contacto</strong> No hay Contacto</li>"
     #Body HTML
-    bodyHtml = "<h3 class='info'>INFO APARCAMIENTO</h3>" \
-            + "<dl class='info'><dt>Nombre de Parking</dt>" \
-                + "<dd>" + aparcamiento.nombre + "</dd>" \
-                + "<dt>Direccion</dt>" \
-                + "<dd>" + aparcamiento.direccion + "</dd>" \
-                + "<dt>Accesibilidad</dt>" \
-                + "<dd>" + str(aparcamiento.Accesibilidad) + "</dd>" \
-                + "<dt>Latitud</dt>"\
-                + "<dd>" + str(aparcamiento.latitud) + "</dd>" \
-                +"<dt>Longitud</dt>" \
-                + "<dd>" + str(aparcamiento.longitud) + "</dd>" \
-                + "<dt>Barrio</dt>" \
-                + "<dd>" + aparcamiento.barrio + "</dd>" \
-                + "<dt>Distrito</dt>" \
-                + "<dd>" + aparcamiento.distrito + "</dd>" \
-                + "<dt>Descripcion</dt>" \
-                + "<dd>" + aparcamiento.descripcion + "</dd>" \
-                + htmlContacto + "</dl>"
+    bodyHtml = "<h2 class='info'><span class='cat'>INFO APARCAMIENTO</span></h2>" \
+            + "<ul class='info'><li><strong>Nombre de Parking: </strong>" \
+                +  aparcamiento.nombre + "</li>" \
+                + "<li><strong>Direccion: </strong>" \
+                + aparcamiento.direccion + "</li>" \
+                + "<li><strong>Accesibilidad: </strong>" \
+                + str(aparcamiento.Accesibilidad) + "</li>" \
+                + "<li><strong>Latitud: </strong>"\
+                + str(aparcamiento.latitud) + "</li>" \
+                + "<li><strong>Longitud: </strong>" \
+                + str(aparcamiento.longitud) + "</li>" \
+                + "<li><strong>Barrio: </strong>" \
+                + aparcamiento.barrio + "</li>" \
+                + "<li><strong>Distrito: </strong>" \
+                +  aparcamiento.distrito + "</li>" \
+                + "<li><strong>Descripcion: </strong>" \
+                + aparcamiento.descripcion + "</li>" \
+                + htmlContacto + "</ul>"
     try:
         listaComentarios = Comentarios.objects.filter(Aparcamiento=aparcamiento)
-        htmlComentarios = "<h4 id='comments'><span>Comentarios</span></h4><ul>"
+        htmlComentarios = "<h4 id='comments'><span class='comments'>Comentarios</span></h4><ul>"
         for i in listaComentarios:
-            htmlComentarios = htmlComentarios + "<li class='comments'>" + i.Comentario + "</li></ul><br>"
+            htmlComentarios = htmlComentarios + "<li class='comments'>" + i.Comentario + "</li>"
+        htmlComentarios = htmlComentarios + "</ul><br>"
     except Comentarios.DoesNotExist:
         htmlComentarios = "No Hay Comentarios para este aparcamiento"
     return (bodyHtml + htmlComentarios)
@@ -273,7 +274,8 @@ def barra(request):
             TituloBarra = "<h2>Aparcamientos Mas Comentados</h2>"
             #Aparcamientos mas comentados
             parkings = Aparcamientos.objects.all()
-            aparcamientos = parkings.order_by('nComen')
+            aparcamientosComen = Aparcamientos.objects.filter(nComen__gt=0)
+            aparcamientos = aparcamientosComen.order_by('-nComen')[:5]
             Content = listaAparcamientos(aparcamientos,request, 0, request.user)
 
     #Paginas Personales
@@ -537,13 +539,16 @@ def informacion(request):
 
     header, login = stringLogin(request)
 
-    Contenido = "<p>Aplicacion Web que aglutina informacion sobre aparcamientos en la ciudad de Madrid<p>"\
-        + "<p>La aplicacion consistira en comentar los aparcamientos disponibles de Madrid, dando al usuario" \
-        + "la interfaz de crear una pagina con sus Parkings Favoritos de Madrid, donde la app recogera, "\
-        + "el nombre del Parking, descripcion, localizacion, telefono y email de contacto, etc.</p>" \
-        + "<p> Ademas se podran comentar sobre los aparcamientos, dando asi al usuario informacion sobre experiencias"\
-        + "recogidas de tal aparcamiento por otros usuarios</p>"\
-        + "<p>Aplicacion diseñada por Javier Fernandez Morata<br> Alumno de ETSIT del grado de Tecnologías</p>"
+    Contenido = "<p>PARK es una aplicacion que aglutina informacion sobre los Parkings de Madrid<p>"\
+        + "<p>Esta aplicacion te permite si tienes cuenta una serie de funcionalidades, en las que se encuentra" \
+        + " comentar los aparcamientos disponibles, dando asi informacion del estado del parking," \
+        + "a partir de una pagina personal asociada al usuario, seleccionar aparcamientos que el usuario decida añadir.</p>"\
+        + "<p>Las funciones que ofrece para un usario que no tiene contraseña tambien son varias, sin tener cuenta"\
+        + " podemos acceder a las paginas de los usuarios, viendo asi, los aparcamientos que ha seleccionado cada usuario" \
+        + " , y ver los comentarios que tiene cada Parking de Madrid haciendonos asi una idea del estado de estos</p>" \
+        + "<p> Aplicacion implementada por @Javier Fernandez Morata</p>" \
+        + "<p> Para sugerencias de como mejorar dicha aplicacion. Enviad Correo a j.fernandezmor@alumnos.urjc.es</p>"
+
     plantilla = get_template("error.html")
     Content = ({'Contenido': Contenido,
                 'login': header,
