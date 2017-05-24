@@ -401,6 +401,7 @@ def todosAparcamientos(request):
     header, login = stringLogin(request)
     formularioFiltrado = "<form  id='buscarDistrito' method='POST'>"\
         + "Buscar por Distrito: <select name='Distrito'>" \
+        + "<option value='TODOS'>Todos</option>" \
         + "<option value='CENTRO'>Centro</option>" \
         + "<option value='CHAMARTIN'>Chamartin</option>" \
         + "<option value='TETUAN'>Tetuan</option>" \
@@ -434,12 +435,15 @@ def todosAparcamientos(request):
             #Obtenemos la pagina de Contactos
             pagina = request.GET.get('page')
 
+
             try:
                 parkings = paginator.page(pagina)
             except PageNotAnInteger:
                 parkings = paginator.page(1)
             except:
                 parkings = paginator.page(paginator.num_pages)
+
+
             ContentBody = "<ul>"
             for i in parkings:
                 botonAñadir = "<form class='Personal' action='/" + str(request.user) + "' method='POST'>" \
@@ -456,8 +460,20 @@ def todosAparcamientos(request):
             Distrito = valuePOST
             Distrito = unquote_plus(Distrito)
             Distrito = Distrito.upper() #Necesario para que se pueda realziar el filtrado
-            print(Distrito)
-            parkings = Aparcamientos.objects.filter(distrito=Distrito)
+            if Distrito == 'TODOS':
+                parkingsFilter = Aparcamientos.objects.all()
+                paginator = Paginator(parkingsFilter, 5) #Mostrara 5 aparcamientos de 5 en 5
+                #Obtenemos la pagina de Contactos
+                pagina = request.GET.get('page')
+                try:
+                    parkings = paginator.page(pagina)
+                except PageNotAnInteger:
+                    parkings = paginator.page(1)
+                except:
+                    parkings = paginator.page(paginator.num_pages)
+            else:
+                parkings = Aparcamientos.objects.filter(distrito=Distrito)
+
             ContentBody = "<ul>"
             for i in parkings:
                 botonAñadir = "<form class='Personal' action='/" + str(request.user) + "' method='POST'>" \
